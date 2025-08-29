@@ -112,6 +112,7 @@ class TransactionProcessor:
                 categorized.append(result)
             elif categorization['status'] == 'no_match':
                 unmatched.append(result)
+                categorized.append(result)  # Include unmatched in CSV output with TODO category
             elif categorization['status'] == 'multiple_matches':
                 multiple_matches.append(result)
                 categorized.append(result)  # Still include in output with first match
