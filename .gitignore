@@ -1,0 +1,6 @@
+in/*
+out/*
+*.pyc
+notes.txt
+bkp
+purposes_config.py
