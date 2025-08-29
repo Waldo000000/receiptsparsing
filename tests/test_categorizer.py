@@ -92,27 +92,6 @@ class TestTransactionCategorizer(unittest.TestCase):
         self.assertEqual(result['status'], 'matched')
         self.assertEqual(result['selected_category'], ['Groceries'])
     
-    def test_get_category_levels_with_full_path(self):
-        """Test category level extraction with 3-level path."""
-        category_path = ['Bills', 'Telecom', 'Mobile']
-        
-        levels = self.categorizer.get_category_levels(category_path)
-        
-        self.assertEqual(levels, ('Bills', 'Telecom', 'Mobile'))
-    
-    def test_get_category_levels_with_partial_path(self):
-        """Test category level extraction with partial path."""
-        category_path = ['Groceries']
-        
-        levels = self.categorizer.get_category_levels(category_path)
-        
-        self.assertEqual(levels, ('Groceries', '', ''))
-    
-    def test_get_category_levels_with_none(self):
-        """Test category level extraction with None (no match)."""
-        levels = self.categorizer.get_category_levels(None)
-        
-        self.assertEqual(levels, ('TODO', '', ''))
     
     def _create_transaction(self, description, amount=-10.50):
         """Helper to create test transaction."""

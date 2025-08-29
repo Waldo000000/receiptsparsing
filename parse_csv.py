@@ -52,11 +52,20 @@ def main():
     # Process transactions
     process_result = processor.process_transactions(parse_result['transactions'], date_filter)
     
+    # Combine all transactions for CSV output:
+    # - Categorized transactions (as-is)
+    # - Multiple matches (use first match, show warning)
+    # - Unmatched transactions (will get TODO category in CSV handler)
+    all_for_csv = []
+    all_for_csv.extend(process_result['categorized'])
+    all_for_csv.extend(process_result['multiple_matches']) 
+    all_for_csv.extend(process_result['unmatched'])
+    
     # Write output file
     try:
-        CsvHandler.write_categorized_transactions(
+        CsvHandler.write_transactions(
             args.outFileName, 
-            process_result['categorized'], 
+            all_for_csv, 
             args.source
         )
     except Exception as e:

@@ -29,21 +29,26 @@ class CsvHandler:
         return all_rows
     
     @staticmethod
-    def write_categorized_transactions(file_path, categorized_transactions, source_label):
+    def write_transactions(file_path, transaction_items, source_label):
         """
-        Write categorized transactions to CSV file.
+        Write transaction items to CSV file.
         
         Args:
             file_path: Output file path
-            categorized_transactions: List of categorized transaction dicts
+            transaction_items: List of transaction result dicts from processor
             source_label: Label to add to source column
         """
         with open(file_path, 'wt', newline='') as outfile:
             writer = csv.writer(outfile, delimiter=',')
             
-            for item in categorized_transactions:
+            for item in transaction_items:
                 transaction = item['transaction']
-                level0, level1, level2 = item['category_levels']
+                categorization = item['categorization']
+                
+                # Format category levels - use TODO for unmatched, otherwise format the category path
+                level0, level1, level2 = CsvHandler._format_category_levels(
+                    ["TODO"] if categorization['status'] == 'no_match' else categorization['selected_category']
+                )
                 
                 effective_date_str = transaction.effectiveDate.strftime("%Y-%m-%d")
                 posted_date_str = transaction.postedDate.strftime("%Y-%m-%d")
@@ -61,3 +66,20 @@ class CsvHandler:
                     "",  # Notes column (empty for now)
                     source_info
                 ])
+    
+    @staticmethod
+    def _format_category_levels(category_path):
+        """
+        Convert category path to standardized 3-level format for CSV output.
+        
+        Args:
+            category_path: List representing category hierarchy
+            
+        Returns:
+            tuple: (level0, level1, level2) with empty strings for missing levels
+        """
+        level0 = category_path[0] if len(category_path) > 0 else ""
+        level1 = category_path[1] if len(category_path) > 1 else ""
+        level2 = category_path[2] if len(category_path) > 2 else ""
+        
+        return (level0, level1, level2)

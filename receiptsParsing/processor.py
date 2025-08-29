@@ -103,19 +103,16 @@ class TransactionProcessor:
             # Create result object
             result = {
                 'transaction': transaction,
-                'categorization': categorization,
-                'category_levels': self.categorizer.get_category_levels(categorization['selected_category'])
+                'categorization': categorization
             }
             
-            # Sort into appropriate buckets
+            # Sort into appropriate buckets - each transaction in exactly ONE list
             if categorization['status'] == 'matched':
                 categorized.append(result)
             elif categorization['status'] == 'no_match':
                 unmatched.append(result)
-                categorized.append(result)  # Include unmatched in CSV output with TODO category
             elif categorization['status'] == 'multiple_matches':
                 multiple_matches.append(result)
-                categorized.append(result)  # Still include in output with first match
         
         return {
             'categorized': categorized,

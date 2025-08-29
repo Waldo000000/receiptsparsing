@@ -44,21 +44,3 @@ class TransactionCategorizer:
                 'selected_category': purpose_lists[0]  # Default to first match
             }
     
-    def get_category_levels(self, category_path):
-        """
-        Convert category path to standardized 3-level format.
-        
-        Args:
-            category_path: List representing category hierarchy
-            
-        Returns:
-            tuple: (level0, level1, level2) with empty strings for missing levels
-        """
-        if category_path is None:
-            return ("TODO", "", "")
-        
-        level0 = category_path[0] if len(category_path) > 0 else ""
-        level1 = category_path[1] if len(category_path) > 1 else ""
-        level2 = category_path[2] if len(category_path) > 2 else ""
-        
-        return (level0, level1, level2)

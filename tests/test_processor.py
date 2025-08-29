@@ -19,9 +19,9 @@ class TestTransactionProcessor(unittest.TestCase):
         }
         self.processor = TransactionProcessor(self.purposes_map)
     
-    def test_unmatched_transactions_included_in_categorized_output(self):
-        """Test that unmatched transactions appear in both unmatched AND categorized lists."""
-        # Create transactions with one match and one no-match
+    def test_transaction_separation_into_distinct_lists(self):
+        """Test that transactions are separated into distinct lists."""
+        # Create transactions with different outcomes
         matched_row = [
             "12:34 01-01-25", "PHARMACY GUILD", "", "10.50", 
             "Test Account", "", "Visa", "Health", "123", "789"
@@ -35,24 +35,23 @@ class TestTransactionProcessor(unittest.TestCase):
         
         result = self.processor.process_transactions(transactions)
         
-        # Should have 2 items in categorized (both matched and unmatched)
-        self.assertEqual(len(result['categorized']), 2)
-        
-        # Should have 1 item in unmatched list (for CLI warnings)
+        # Should have 1 matched, 1 unmatched, 0 multiple matches
+        self.assertEqual(len(result['categorized']), 1)
         self.assertEqual(len(result['unmatched']), 1)
+        self.assertEqual(len(result['multiple_matches']), 0)
         
-        # Verify the unmatched transaction appears in both lists
+        # Verify the matched transaction
+        matched_item = result['categorized'][0]
+        self.assertEqual(matched_item['categorization']['status'], 'matched')
+        self.assertIn("PHARMACY GUILD", matched_item['transaction'].description)
+        
+        # Verify the unmatched transaction
         unmatched_item = result['unmatched'][0]
-        self.assertEqual(unmatched_item['category_levels'], ('TODO', '', ''))
-        
-        # Verify it's also in categorized for CSV output
-        unmatched_in_categorized = [item for item in result['categorized'] 
-                                   if item['category_levels'][0] == 'TODO']
-        self.assertEqual(len(unmatched_in_categorized), 1)
-        self.assertIn("UNKNOWN MERCHANT", unmatched_in_categorized[0]['transaction'].description)
+        self.assertEqual(unmatched_item['categorization']['status'], 'no_match')
+        self.assertIn("UNKNOWN MERCHANT", unmatched_item['transaction'].description)
     
     def test_multiple_matches_behavior(self):
-        """Test that multiple matches show warnings but still get categorized."""
+        """Test that multiple matches go to separate list."""
         # Create overlapping patterns
         overlap_map = {
             'Category1': ['TEST'],
@@ -68,13 +67,15 @@ class TestTransactionProcessor(unittest.TestCase):
         
         result = processor.process_transactions(transactions)
         
-        # Should be in both categorized and multiple_matches
-        self.assertEqual(len(result['categorized']), 1)
+        # Should be in multiple_matches only, not categorized
+        self.assertEqual(len(result['categorized']), 0)
         self.assertEqual(len(result['multiple_matches']), 1)
+        self.assertEqual(len(result['unmatched']), 0)
         
-        # Should default to first match
-        item = result['categorized'][0]
-        self.assertEqual(item['category_levels'][0], 'Category1')
+        # Should have first match selected by default
+        item = result['multiple_matches'][0]
+        self.assertEqual(item['categorization']['status'], 'multiple_matches')
+        self.assertEqual(item['categorization']['selected_category'], ['Category1'])
     
     def test_journal_credit_processing(self):
         """Test that journal credits are properly handled."""
