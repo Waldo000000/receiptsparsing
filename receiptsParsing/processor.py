@@ -34,7 +34,7 @@ class TransactionProcessor:
         journal_credits = []
         
         for row in csv_rows:
-            if not len(row) in (5, 6, 10):
+            if not len(row) in (3, 5, 6, 10):
                 errors.append(f"Unexpected number of fields: {', '.join(row)}")
                 continue
             

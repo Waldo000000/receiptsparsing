@@ -125,7 +125,7 @@ class TestTransactionProcessor(unittest.TestCase):
         """Test that CSV parsing handles errors gracefully."""
         # Invalid rows
         invalid_rows = [
-            ["too", "few", "fields"],  # Wrong number of fields
+            ["too", "few"],  # Wrong number of fields
             None  # This will cause an exception in Transaction()
         ]
         

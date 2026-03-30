@@ -25,12 +25,12 @@ python parse_csv.py --readAll --outFileName out/output.csv --source BankName inp
 # Process specific month/year
 python parse_csv.py --year 2025 --month 8 --outFileName out/output.csv input.csv
 
-# Use the automated script (processes UBank CSV from in/ to out/)
+# Use the automated script (processes UBank and Bendigo CSVs from in/ to out/)
 ./parse_csv.all.sh
 ```
 
 ### File Structure
-- `in/`: Input CSV files (e.g., in.ubank.csv)
+- `in/`: Input CSV files (e.g., in.ubank.csv, in.bendigo.csv)
 - `out/`: Processed output CSV files
 - `bkp/`: Timestamped backups of previous outputs
 - `receiptsParsing/`: Core Python module
@@ -41,6 +41,7 @@ The system handles multiple CSV formats:
 - **UBank new format** (10 fields): Date/time, Description, Debit, Credit, From account, To account, Payment type, Category, Receipt number, Transaction ID
 - **UBank old format** (5 fields): Blank, Posted date, Description, Accounting string, Balance
 - **loans.com.au format** (6 fields): Posted date, Effective date, Description, Debit, Credit, Balance
+- **Bendigo credit card format** (3 fields): Date (DD/MM/YYYY), Amount (signed decimal, negative=expense, positive=credit), Description
 
 ## Configuration Setup
 

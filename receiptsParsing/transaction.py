@@ -10,6 +10,12 @@ class Transaction:
   def __init__(self, inRow):
 
     self.source = ""
+    if len(inRow) == 3:
+        # Bendigo credit card: Date, Amount, Description
+        (dateRaw, amountRaw, description) = inRow
+        postedDateRaw = dateRaw
+        effectiveDateRaw = dateRaw
+        amount = Decimal(amountRaw) * -1
     if len(inRow) == 6:
         # loans.com.au
         (postedDateRaw, effectiveDateRaw, description, debit, credit, balance) = inRow

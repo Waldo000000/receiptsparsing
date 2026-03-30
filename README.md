@@ -4,11 +4,11 @@ A Python-based bank transaction parsing and categorization system that automatic
 
 ## Overview
 
-This tool reads CSV files from bank exports (primarily UBank format), applies intelligent pattern matching to categorize transactions into meaningful categories, and outputs structured CSV files ready for financial analysis or import into other systems.
+This tool reads CSV files from bank exports (UBank, Bendigo credit card, loans.com.au), applies intelligent pattern matching to categorize transactions into meaningful categories, and outputs structured CSV files ready for financial analysis or import into other systems.
 
 ## Features
 
-- **Multi-format CSV support**: Handles UBank (old/new formats) and loans.com.au CSV exports
+- **Multi-format CSV support**: Handles UBank (old/new formats), Bendigo credit card, and loans.com.au CSV exports
 - **Automatic categorization**: Uses regex pattern matching against a hierarchical category system
 - **Date range filtering**: Process all transactions or filter by specific months/years  
 - **Backup system**: Automatically backs up previous outputs before processing
@@ -17,7 +17,7 @@ This tool reads CSV files from bank exports (primarily UBank format), applies in
 
 ## Quick Start
 
-1. Place your bank CSV export in the `in/` directory (e.g., `in/in.ubank.csv`)
+1. Place your bank CSV export in the `in/` directory (e.g., `in/in.ubank.csv`, `in/in.bendigo.csv`)
 2. Run the automated processing script:
    ```bash
    ./parse_csv.all.sh
@@ -37,7 +37,7 @@ python parse_csv.py --year 2025 --month 8 --outFileName out/output.csv input.csv
 
 ### Automated Processing
 ```bash
-# Process UBank CSV from in/ to out/ with automatic backup
+# Process UBank and Bendigo CSVs from in/ to out/ with automatic backup
 ./parse_csv.all.sh
 ```
 
@@ -45,10 +45,12 @@ python parse_csv.py --year 2025 --month 8 --outFileName out/output.csv input.csv
 
 ```
 ├── in/                     # Input CSV files
-│   └── in.ubank.csv       # Your bank export goes here
+│   ├── in.ubank.csv       # UBank export goes here
+│   └── in.bendigo.csv     # Bendigo credit card export (optional)
 ├── out/                   # Processed output files
 │   ├── out.csv           # Combined categorized transactions
-│   └── out.ubank.csv     # Bank-specific output
+│   ├── out.ubank.csv     # Bank-specific output
+│   └── out.bendigo.csv   # Bendigo-specific output
 ├── bkp/                   # Timestamped backups
 ├── receiptsParsing/       # Core Python module
 │   └── transaction.py     # Transaction parsing logic
@@ -62,6 +64,7 @@ python parse_csv.py --year 2025 --month 8 --outFileName out/output.csv input.csv
 - **UBank new format** (10 fields): Date/time, Description, Debit, Credit, From account, To account, Payment type, Category, Receipt number, Transaction ID
 - **UBank old format** (5 fields): Blank, Posted date, Description, Accounting string, Balance  
 - **loans.com.au format** (6 fields): Posted date, Effective date, Description, Debit, Credit, Balance
+- **Bendigo credit card format** (3 fields): Date (DD/MM/YYYY), Amount (signed decimal, negative=expense, positive=credit), Description
 
 ## Output Format
 
