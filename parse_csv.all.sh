@@ -22,4 +22,8 @@ if [ -f in/in.bendigo.csv ]; then
 fi
 
 #sort -t, -k2 out/out.offset.csv out/out.ubank.csv | tee out/out.csv
-sort -t, -k2 out/out.ubank.csv out/out.bendigo.csv 2>/dev/null | tee out/out.csv
+if [ -f out/out.bendigo.csv ]; then
+    sort -t, -k2 out/out.ubank.csv out/out.bendigo.csv | tee out/out.csv
+else
+    sort -t, -k2 out/out.ubank.csv | tee out/out.csv
+fi
