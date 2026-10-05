@@ -2,6 +2,7 @@
 Integration tests for TransactionProcessor - testing end-to-end processing logic.
 """
 import unittest
+from decimal import Decimal
 from datetime import datetime
 from receiptsParsing.processor import TransactionProcessor
 from receiptsParsing.transaction import Transaction
@@ -147,6 +148,37 @@ class TestTransactionProcessor(unittest.TestCase):
             self.assertIn("Unexpected number of fields", parse_result['errors'][0])
         except Exception as e:
             self.fail(f"CSV parsing should handle errors gracefully, but got: {e}")
+
+    def test_ubank_optional_tags_and_header(self):
+        header = [
+            'Date and time', 'Description', 'Debit', 'Credit',
+            'From account', 'To account', 'Payment type', 'Category',
+            'Receipt number', 'Transaction ID'
+        ]
+        for tags in (None, '', 'Travel, shared'):
+            for debit, credit, expected, source in (
+                ('$1,234.56', '', Decimal('1234.56'), 'Spending'),
+                ('', '$12.34', Decimal('-12.34'), 'Savings'),
+            ):
+                with self.subTest(tags=tags, debit=debit, credit=credit):
+                    row = [
+                        '10:32 18-09-26', 'TEST PURCHASE', debit, credit,
+                        'Spending', 'Savings', 'Transfer', '', '123', '456'
+                    ]
+                    extra = [] if tags is None else [tags]
+                    result = self.processor.parse_csv_rows([
+                        header + ([] if tags is None else ['Tags']), row + extra
+                    ])
+                    self.assertEqual(result['errors'], [])
+                    self.assertEqual(len(result['transactions']), 1)
+                    transaction = result['transactions'][0]
+                    self.assertEqual(transaction.amount, expected)
+                    self.assertEqual(transaction.source, source)
+                    self.assertEqual(transaction.postedDate, datetime(2026, 9, 18, 10, 32))
+                    if tags:
+                        self.assertIn('Tags: ' + tags, transaction.description)
+                    else:
+                        self.assertNotIn('Tags:', transaction.description)
 
 
 if __name__ == '__main__':

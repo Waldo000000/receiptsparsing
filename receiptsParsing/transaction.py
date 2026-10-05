@@ -25,11 +25,13 @@ class Transaction:
         (blank, postedDateRaw, description, accountingStr, balance) = inRow
         effectiveDateRaw = postedDateRaw # ubank only shows one "transaction date"
         amount = self.__flipSign(accountingStr)
-    if len(inRow) == 10:
+    if len(inRow) in (10, 11):
         # ubank new, from "activity" view
-        (dateAndTime, descriptionRaw, debit, credit, fromAccount, toAccount, paymentType, category, receiptNumber, transactionId) = inRow
+        (dateAndTime, descriptionRaw, debit, credit, fromAccount, toAccount, paymentType, category, receiptNumber, transactionId) = inRow[:10]
 
         description = descriptionRaw + "; " + "; ".join(f"{name}: {value}" for name, value in [("From account", fromAccount), ("To account", toAccount), ("Payment type", paymentType), ("Category", category), ("Receipt number", receiptNumber), ("Transaction ID", transactionId)] if value)
+        if len(inRow) == 11 and inRow[10]:
+            description += "; Tags: " + inRow[10]
 
         # set amount
         if debit:
@@ -99,4 +101,3 @@ class Transaction:
 
   def __str__(self):
     return str.join(", ", [self.effectiveDate.strftime("%d/%m/%Y"), self.postedDate.strftime("%d/%m/%Y"), self.description, str(self.amount)])
-

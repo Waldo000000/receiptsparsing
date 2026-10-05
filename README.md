@@ -24,6 +24,18 @@ This tool reads CSV files from bank exports (UBank, Bendigo credit card, loans.c
    ```
 3. Find your categorized transactions in `out/out.csv`
 
+### Monthly processing skill
+
+The self-contained [monthly-budget-update skill](.agents/skills/monthly-budget-update/SKILL.md) guides an agent through reviewing a calendar month, resolving categories and Amazon purchases, and preparing spreadsheet rows on the clipboard. Ask it to process a specific month and year after refreshing the bank exports in `in/`. Monthly exports use posting date while preserving the original effective/purchase date. Card purchases and refunds are individual rows; repayments are transfers.
+
+To export a processed month:
+```bash
+python .agents/skills/monthly-budget-update/scripts/export_month.py --year 2025 --month 9
+```
+This writes CSV, TSV and UTF-16LE clipboard files under `out/`; it does not change the system clipboard.
+
+The skill contains public workflow instructions. Keep personal categorisation rules in the gitignored `purposes_config.py`, and bank exports and order details in the gitignored `in/` directory.
+
 ## Usage
 
 ### Basic Processing
@@ -61,7 +73,7 @@ python parse_csv.py --year 2025 --month 8 --outFileName out/output.csv input.csv
 
 ## Supported CSV Formats
 
-- **UBank new format** (10 fields): Date/time, Description, Debit, Credit, From account, To account, Payment type, Category, Receipt number, Transaction ID
+- **UBank new format** (10 or 11 fields): Date/time, Description, Debit, Credit, From account, To account, Payment type, Category, Receipt number, Transaction ID, optional Tags. The header is skipped and nonempty tags are preserved in the description.
 - **UBank old format** (5 fields): Blank, Posted date, Description, Accounting string, Balance  
 - **loans.com.au format** (6 fields): Posted date, Effective date, Description, Debit, Credit, Balance
 - **Bendigo credit card format** (3 fields): Date (DD/MM/YYYY), Amount (signed decimal, negative=expense, positive=credit), Description
@@ -71,7 +83,7 @@ python parse_csv.py --year 2025 --month 8 --outFileName out/output.csv input.csv
 The processed CSV contains these columns:
 - Effective Date (YYYY-MM-DD)
 - Posted Date (YYYY-MM-DD)  
-- Amount (positive for credits, negative for debits)
+- Amount (positive for expenses, negative for refunds/income)
 - Category Level 1 (e.g., "Bills", "Groceries", "Transport")
 - Category Level 2 (e.g., "Electricity", "Health", "Telecom")
 - Category Level 3 (e.g., "Netflix", "Pharmacy", "Uber")
@@ -92,7 +104,7 @@ The system includes pre-configured categories for:
 ## Customization
 
 To add new transaction patterns:
-1. Edit the `purposesMap` dictionary in `parse_csv.py`
+1. Edit the `purposesMap` dictionary in the gitignored `purposes_config.py`
 2. Add regex patterns that match your transaction descriptions
 3. Organize patterns into the hierarchical category structure
 
